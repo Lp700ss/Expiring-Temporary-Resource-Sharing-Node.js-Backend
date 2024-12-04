@@ -1,24 +1,34 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
-const Resource = require('./resource.model');
-const User = require('./user.model');
+const sequelize = require('../config/db'); // Import Sequelize instance
 
-const SharedResource = sequelize.define('SharedResource', {
-    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-    resource_id: {
-        type: DataTypes.UUID,
+// sharedResource.model.js
+module.exports = (sequelize, DataTypes) => {
+    const SharedResource = sequelize.define('SharedResource', {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      resource_id: {
+        type: DataTypes.INTEGER,
         allowNull: false,
-        references: { model: Resource, key: 'id' },
-    },
-    shared_with_user_id: {
-        type: DataTypes.UUID,
+      },
+      shared_with_user_id: {
+        type: DataTypes.INTEGER,
         allowNull: false,
-        references: { model: User, key: 'id' },
-    },
-    created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-});
-
-SharedResource.belongsTo(Resource, { foreignKey: 'resource_id', onDelete: 'CASCADE' });
-SharedResource.belongsTo(User, { foreignKey: 'shared_with_user_id', onDelete: 'CASCADE' });
-
-module.exports = SharedResource;
+      },
+      expiration_time: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+    });
+  
+    // Add associations after model definition
+    SharedResource.associate = (models) => {
+      SharedResource.belongsTo(models.Resource, { foreignKey: 'resource_id' }); // Belongs to Resource
+      SharedResource.belongsTo(models.User, { foreignKey: 'shared_with_user_id' }); // Belongs to User (who the resource is shared with)
+    };
+  
+    return SharedResource;
+  };
+  

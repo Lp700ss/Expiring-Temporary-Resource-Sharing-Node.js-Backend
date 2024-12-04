@@ -1,12 +1,23 @@
 const cron = require('node-cron');
-const Resource = require('../models/resource.model');
+const { Op } = require('sequelize'); // Import Sequelize operators
+const Resource = require('../models/resource.model'); 
 
+// Schedule the cron job to run every 5 minutes
 cron.schedule('*/5 * * * *', async () => {
-  await Resource.update({ is_active: false }, {
-    where: {
-      expiration_time: { [Op.lt]: new Date() },
-      is_active: true,
-    },
-  });
-  console.log('Expired resources updated.');
+  try {
+    // Mark resources as inactive if they are expired
+    const updatedCount = await Resource.update(
+      { is_active: false }, // Set is_active to false
+      {
+        where: {
+          expiration_time: { [Op.lt]: new Date() }, // Compare expiration_time with the current time
+          is_active: true, // Only update resources that are still active
+        },
+      }
+    );
+
+    console.log(`Expired resources updated: ${updatedCount[0]} resources marked as inactive.`);
+  } catch (error) {
+    console.error('Error updating expired resources:', error);
+  }
 });
