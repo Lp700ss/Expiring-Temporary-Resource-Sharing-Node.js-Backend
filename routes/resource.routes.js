@@ -2,7 +2,9 @@ const express = require('express');
 const { 
   createResource, 
   getResources, 
-  uploadResource 
+  uploadResource ,
+  getResourceById,
+  deleteResource
 } = require('../controllers/resource.controller');
 
 const {
@@ -27,6 +29,15 @@ router.post('/share', authMiddleware, shareResource); // Share a resource
 router.get('/shared', authMiddleware, getSharedResources); // Get shared resources
 router.get('/status/:resource_id', authMiddleware, checkResourceStatus); // Check resource status
 
+
+// Fetch all resources
+router.get('/resources', authMiddleware, getResources);
+
+// Access a specific resource
+router.get('/resources/:id', authMiddleware, getResourceById);
+
+// Delete a resource
+router.delete('/resources/:id', authMiddleware, deleteResource);
 
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
